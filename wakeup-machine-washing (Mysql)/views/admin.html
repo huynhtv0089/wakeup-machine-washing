@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Giặt Là Sạch | Quản Lý</title>
+
+		<!-- Datatbale JQuery -->
+		<link rel="stylesheet" href="static/css/jquery.dataTables.min.css" />
+		<!--link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css" /-->
+		<!--link rel="stylesheet" href="static/css/dataTables.bootstrap4.min.css" /-->
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="static/css/bootstrap.min.css" />
+		<!-- Font Awesome CSS -->
+		<link rel="stylesheet" href="static/css/font-awesome.min.css" />
+		<!-- Core CSS -->
+		<link rel="stylesheet" href="static/css/custom.css" />
+	</head>
+	
+	<body>	
+		<div class="waiting-loader d-none">
+			<div class="d-flex loader">
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<h5 class="loader-text d-flex justify-content-center align-items-end text-secondary">
+					Chương trình đang xử lý.
+				</h5>
+			</div>
+		</div>
+			
+		<nav class="navbar navbar-expand-lg navbar-light d-plex justify-content-between bg-light p-0 mb-3" id="header">
+			<a href="/" class="btn btn-sm btn-outline-primary ml-3">
+				Trang chủ
+				<i class="fa fa-home" aria-hidden="true"></i>
+			</a>
+
+			<a href="/logout" class="btn btn-sm btn-outline-dark mr-3">
+				Đăng xuất
+				<i class="fa fa-sign-in" aria-hidden="true"></i>
+			</a>
+		</nav>
+
+		<section class="container-fluid" id="center">
+			<div class="row h-100 d-flex justify-content-between">
+				<div class="col-sm-3 pt-1 h-100">
+					<ul class="list-group overflow-auto h-100 shadow" id="menuModule">
+						<li class="list-group-item d-flex justify-content-between align-items-center pt-2 pb-2" module="employee">
+							Quản lý nhân viên
+							<span class="badge badge-info badge-pill">
+								<i class="fa fa-users" aria-hidden="true"></i>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center pt-2 pb-2" module="money">
+							Quản lý doanh thu
+							<span class="badge badge-info badge-pill">
+								<i class="fa fa-money" aria-hidden="true"></i>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center pt-2 pb-2" module="history">
+							Lịch sử nhân viên
+							<span class="badge badge-info badge-pill">
+								<i class="fa fa-database" aria-hidden="true"></i>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center pt-2 pb-2" module="statisticCustomer">
+							Thống kê khách hàng
+							<span class="badge badge-info badge-pill">
+								<i class="fa fa-address-book-o" aria-hidden="true"></i>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center pt-2 pb-2" module="setting">
+							Bảng điều chỉnh
+							<span class="badge badge-info badge-pill">
+								<i class="fa fa-sliders" aria-hidden="true"></i>
+							</span>
+						</li>
+						<li class="list-group-item h-100 bg-white context-menu"></li>
+					</ul>
+				</div>
+				
+				<div class="col-sm-8 pt-1 h-100 border border-info rounded-left shadow" id="info-module">
+					<div id="module-employee" class="h-100">
+						<div class="input-group mb-2">
+							<div class="d-flex justify-content-between w-100">
+								<button class="btn btn-sm btn-outline-success" onclick="injectInfoEmployee()"
+										data-toggle="modal" data-target="#modalModifyEmployee">
+									Tạo nhân viên
+									<i class="fa fa-user-plus" aria-hidden="true"></i>
+								</button>
+								
+								<div class="input-group input-group-sm w-60">
+									<input type="text" id="searchEmployee" class="form-control border-secondary" placeholder="Tìm tên nhân viên..." />
+									<div class="input-group-append">
+										<button class="btn btn-outline-secondary rounded-right" id="btnSearchEmployee">
+											<i class="fa fa-search pr-1" aria-hidden="true"></i>
+										</button>
+									</div>
+								</div>
+
+							</div>
+							<div class="w-100 border border-info mt-1"></div>
+						</div>
+						<div class="overflow-auto h-90" id="areaListEmployee"></div>
+					</div>
+					<div id="module-money" class="h-100 d-none">
+						<div class="overflow-auto h-90">
+							<div class="d-flex flex-column toast fade show mw-100" id="dataStatictisMoney"></div>
+						</div>
+					</div>
+					<div id="module-history" class="h-100 d-none">
+						<div class="d-flex">
+							<p for="dateHistory" class="col-form-label pr-3">Chọn ngày để xem: </p>
+							<div class="d-flex align-self-center pl-3">
+								<input class="date-moment border" id="dateHistory" type="date" data-date="" data-date-format="DD-MM-YYYY" value="" />
+							</div>
+						</div>
+						<div class="w-100 border border-info mt-1"></div>
+						
+						<div class="overflow-auto h-90 mt-2 list-unstyled bg-image-no-result" id="dataHistory"></div>
+					</div>
+					<div id="module-statistic-customer" class="h-100 d-none">
+						<div class="d-flex">
+							<p for="searchCustomer" class="col-form-label pr-3">Tìm kiếm: </p>
+							<div class="d-flex align-self-center pl-3 input-group input-group-sm w-60">
+								<input class="form-control form-control-sm" id="searchCustomer" type="text" />
+								<div class="input-group-append">
+									<button class="btn btn-outline-secondary rounded-right" id="btnSearchCustomer">
+										<i class="fa fa-search pr-1" aria-hidden="true"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="w-100 border border-info mt-1"></div>
+
+						<div class="overflow-auto h-90">
+							<table class="table table-striped table-bordered" id="tableStatisticCustomer">
+								<thead>
+									<tr>
+										<th>Tên</th>
+										<th>Ngày Sinh</th>
+										<th>Số điện thoại</th>
+										<th>Số lần giặt</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+					<div id="module-setting" class="h-100 d-none">
+						<div class="d-flex justify-content-between w-100">
+							<button class="btn btn-sm btn-outline-success" id="btnSetting">
+								Cập nhật 
+								<i class="fa fa-check" aria-hidden="true"></i>
+							</button>
+							<span class="text-warning pt-1 mr-4">Lưu ý: các giá trị là phải là số tự nhiên không kí tự đặc biệt</span>
+						</div>
+						<div class="w-100 border border-info mt-1"></div>
+						
+						<div class="overflow-auto h-90 mt-2">
+							<div class="form-group row w-100 d-flex justify-content-between">
+								<label for="settingTotalMachineWashing" class="col-sm-4 col-form-label">Số lượng máy giặt</label>
+								<div class="col-sm-8 pr-0">
+									<div class="input-group mb-3">
+										<input type="text" class="form-control" maxlength="11" id="settingTotalMachineWashing" value="10" />
+										<div class="input-group-append">
+											<span class="input-group-text">máy</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="form-group w-100">
+								<label for="priceWashNormal" class="col-form-label pl-0">Giá tiền giặt quần áo / lần</label>
+								<div class="form-row w-100 d-flex justify-content-around">
+									<div class="form-group col-sm-5">
+										<label for="settingWash1To3">1 -&#62; 3kg</label>
+										<div class="input-group mb-3">
+											<input type="text" maxlength="11" class="form-control" id="settingWash1To3" value="40000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-sm-5">
+										<label for="settingWash3To5">3 -&#62; 5kg</label>
+										<div class="input-group mb-3">
+											<input type="text" maxlength="11" class="form-control" id="settingWash3To5" value="50000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-sm-5">
+										<label for="settingWash5To7">5 -&#62; 7kg</label>
+										<div class="input-group mb-3">
+											<input type="text" maxlength="11" class="form-control" id="settingWash5To7" value="60000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-sm-5">
+										<label for="settingWashMoreThan7">&#62; 7kg</label>
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<span class="input-group-text">+</span>
+											</div>
+											<input type="text" maxlength="11" class="form-control" id="settingWashMoreThan7" value="10000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd / kg</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group w-100">
+								<label for="priceWashNormal" class="col-form-label pl-0">Giá tiền sấy quần áo / lần</label>
+								<div class="form-row w-100 d-flex justify-content-around">
+									<div class="form-group col-sm-5">
+										<label for="settingDrying1To3">1 -&#62; 3kg</label>
+										<div class="input-group mb-3">
+											<input type="text" maxlength="11" class="form-control" id="settingDrying1To3" value="40000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-sm-5">
+										<label for="settingDrying3To5">3 -&#62; 5kg</label>
+										<div class="input-group mb-3">
+											<input type="text" maxlength="11" class="form-control" id="settingDrying3To5" value="50000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-sm-5">
+										<label for="settingDrying5To7">5 -&#62; 7kg</label>
+										<div class="input-group mb-3">
+											<input type="text" maxlength="11" class="form-control" id="settingDrying5To7" value="60000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-sm-5">
+										<label for="settingDryingMoreThan7">&#62; 7kg</label>
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<span class="input-group-text">+</span>
+											</div>
+											<input type="text" maxlength="11" class="form-control" id="settingDryingMoreThan7" value="10000" />
+											<div class="input-group-append">
+												<span class="input-group-text">vnd / kg</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row w-100">
+								<label for="settingWashSpecial" class="col-sm-4 col-form-label">Giặt sấy riêng</label>
+								<div class="col-sm-8 pr-0">
+									<div class="input-group mb-3">
+										<input type="text" maxlength="11" class="form-control" id="settingWashSpecial" value="20000">
+										<div class="input-group-append">
+											<span class="input-group-text">vnd</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row w-100">
+								<label for="settingWashBlanket" class="col-sm-4 col-form-label">Giặt chăn mền</label>
+								<div class="col-sm-8 pr-0">
+									<div class="input-group mb-3">
+										<input type="text" maxlength="11" class="form-control" id="settingWashBlanket" value="30000">
+										<div class="input-group-append">
+											<span class="input-group-text">vnd</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row w-100">
+								<label for="priceWashBlanket" class="col-sm-4 col-form-label">Thêm nước giặt hoặc nước xả / nắp</label>
+								<div class="col-sm-8 pr-0">
+									<div class="input-group mb-3">
+										<input type="text" maxlength="11" class="form-control" id="settingAddFabricSoftener" value="5000">
+										<div class="input-group-append">
+											<span class="input-group-text">vnd</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row w-100">
+								<label for="settingSmallBear" class="col-sm-4 col-form-label">Gấu bông nhỏ / con</label>
+								<div class="col-sm-8 pr-0">
+									<div class="input-group mb-3">
+										<input type="text" maxlength="11" class="form-control" id="settingSmallBear" value="40000">
+										<div class="input-group-append">
+											<span class="input-group-text">vnd</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row w-100">
+								<label for="settingBigBear" class="col-sm-4 col-form-label">Gấu bông lớn / con</label>
+								<div class="col-sm-8 pr-0">
+									<div class="input-group mb-3">
+										<input type="text" maxlength="11" class="form-control" id="settingBigBear" value="90000">
+										<div class="input-group-append">
+											<span class="input-group-text">vnd</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>			
+				</div>
+			</div>
+		</section>
+
+		<!-- Modal trigger delete employee -->
+		<div class="modal fade" id="modalWarningEmployee" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="modal-title">Thông báo</h3>
+						<button class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<div class="modal-body">
+						<p>Bạn chắc chứ ???</p>
+					</div>
+
+					<div class="modal-footer">
+						<button class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Đồng ý</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Trigger Modify Employee  -->
+		<div class="modal fade" id="modalModifyEmployee" tabindex="-1" >
+			<div class="modal-dialog modal-dialog-scrollable modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Tạo thông tin nhân viên mới</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="idEmployee" value="" />
+						<input type="hidden" id="createdDateTimeEmployee" value="" />
+						<div class="form-row mb-2">
+							<div class="form-group col-md-6">
+								<label for="username">Tên đăng nhập</label>
+								<input type="text" maxlength="100" class="form-control" id="modifyUsername" />
+								<span class="text-warning">* Lưu ý: giá trị là chữ và số, viết liền, không dấu</span>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="password">Mật khẩu</label>
+								<input type="password" maxlength="100" class="form-control" id="modifyPassword" />
+							</div>
+						</div>
+
+						<div class="form-row mb-2">
+							<div class="form-group col-md-6">
+								<label for="name">Tên nhân viên</label>
+								<input type="text" maxlength="100" class="form-control" id="modifyName" />
+							</div>
+							<div class="form-group col-md-6">
+								<label for="birthday">Ngày tháng năm sinh</label>
+								<input class="form-control date-moment border w-100 h-35px" id="modifyBirthday" type="date" data-date="" data-date-format="DD-MM-YYYY" value="" />
+							</div>
+						</div>
+
+						<div class="form-row mb-2">
+							<div class="form-group col-md-6">
+								<label for="phone">Số điện thoại</label>
+								<input type="text" maxlength="11" class="form-control" id="modifyPhone" />
+								<span class="text-warning">* Lưu ý: giá trị là phải là số</span>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="address">Địa chỉ</label>
+								<input type="text" maxlength="150" class="form-control" id="modifyAddress" />
+							</div>
+						</div>
+						<div class="form-group pl-3 mb-2">
+							<div class="form-check form-check-inline mt-3 ml-5">
+								<input class="form-check-input" type="radio" name="modifyRole" id="modifyRoleAdmin" value="admin">
+								<label class="form-check-label col-form-label-lg" for="modifyRoleAdmin">Quản lý</label>
+							</div>
+							<div class="form-check form-check-inline mt-3 ml-5">
+								<input class="form-check-input" type="radio" name="modifyRole" id="modifyRoleEmployee" value="employee" checked="true">
+								<label class="form-check-label col-form-label-lg" for="modifyRoleEmployee">Nhân Viên</label>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+						<button class="btn btn-primary" id="btnModifyEmployee" type-action="create" data-dismiss="modal">Sao lưu</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Trigger Modal Notify -->
+		<button class="btn btn-primary d-none" id="btnModalNotify" data-toggle="modal" data-target="#modalNotify"></button>
+		<div class="modal fade" id="modalNotify" tabindex="-1" role="dialog" >
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+					<h5 class="modal-title">Thông báo</h5>
+						<button type="button" class="close" id="closeModalNotify" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body" id="notifyText"></div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" data-dismiss="modal">Chấp nhận</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS and then core JS -->
+		<script src="static/js/jquery-3.3.1.min.js"></script>
+		<!--script src="static/js/jquery.dataTables.min.js"></script-->
+		<!--script src="static/js/dataTables.bootstrap4.min.js"></script-->
+		<script src="static/js/bootstrap.min.js"></script>
+		<script src="static/js/popper.min.js"></script>
+		<script src="static/js/moment.min.js"></script>
+
+		<script src="static/js/admin.js"></script>
+	</body>
+</html>

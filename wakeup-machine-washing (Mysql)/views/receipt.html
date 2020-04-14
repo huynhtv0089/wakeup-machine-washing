@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Giặt Là Sạch | Hóa Đơn</title>
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="static/css/bootstrap.min.css" />
+		<!-- Core CSS -->
+		<link rel="stylesheet" href="static/css/custom.css" />
+
+		<title>Monitor | CMD</title>
+	</head>
+	
+	<body>	
+        <div class="waiting-loader">
+            <div class="d-flex loader">
+                <div class="loader--dot"></div>
+                <div class="loader--dot"></div>
+                <div class="loader--dot"></div>
+                <div class="loader--dot"></div>
+                <div class="loader--dot"></div>
+                <div class="loader--dot"></div>
+                <h5 class="loader-text d-flex justify-content-center align-items-end text-secondary">
+                    Chương trình đang xử lý.
+                </h5>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="well col-xs-10 col-sm-10 col-md-6">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-6">
+                            <address>
+                                <strong>Giặt Là Sạch</strong>
+                                <br>
+                                99 Võ Oanh, Quận Bình Thạnh
+                                <br>
+                                <abbr>Số điện thoại:</abbr> 077 7090898
+                            </address>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 text-right">
+                            <p><em id="currentDate"></em></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="text-center">
+                            <h1>Hóa đơn</h1>
+                        </div>
+                        <table class="table table-responsive table-hover" id="tableReceipt">
+                            <thead>
+                                <tr>
+                                    <th>Dịch vụ</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-center">Giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-right" colspan="2">
+                                        <p><strong>Tổng tiền dịch vụ: </strong></p>
+                                        <p><strong>Khuyến mãi: </strong> </p>
+                                    </td>
+                                    <td class="text-center col-md-3">
+                                        <p><strong>$6.94</strong></p>
+                                        <p><strong>$6.94</strong></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right" colspan="2"><h4><strong>Tổng tiền: </strong></h4></td>
+                                    <td class="text-center text-danger"><h4><strong>$31.53</strong></h4></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </div>
+            </div>
+        </div>
+    	<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS and then core JS -->
+		<script src="static/js/jquery-3.3.1.min.js"></script>
+		<script src="static/js/popper.min.js"></script>
+        <script src="static/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                //Current date
+                let date = new Date();
+                $('#currentDate').text('Ngày: ' + ('0' + date.getDate()).slice(-2)+ '-' +('0' + (date.getMonth()+1)).slice(-2)+ '-' +date.getFullYear());
+                $.ajax({
+                    url: "/get-receipt-by-id",
+                    type: "POST",
+                    data: { "id": location.search.split('id=')[1].trim() },
+                    success: function (response) {
+                        if (response.status) {
+                            handleInjectMetric(response.receipts);
+                        }
+                    }, error: function (error) {
+                        console.log(error);
+                        notifyErrorServer();
+                    }
+                });
+            });
+
+            var handleInjectMetric = function(receipts) {
+                if (receipts.length === 0) {
+                    $('.waiting-loader').addClass('d-none');
+                    return;
+                }
+                let receipt = receipts[0];
+                let countTMPTotalMoney = 0;
+                let html = '';
+                
+                //Wash
+                if (receipt.wash !== 0) {
+                    let serviceWash = receipt.wash;
+
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Giặt quần / áo</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ serviceWash +' KG</td>';
+                    
+                    if (serviceWash >= 1 && serviceWash < 3) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_wash_1_to_3 +'</td>';
+                        countTMPTotalMoney += receipt.price_wash_1_to_3;
+                    } else if (serviceWash >= 3 && serviceWash < 5) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_wash_3_to_5 +'</td>';
+                        countTMPTotalMoney += receipt.price_wash_3_to_5;
+                    } else if (serviceWash >= 5 && serviceWash < 7) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_wash_5_to_7 +'</td>';
+                        countTMPTotalMoney += receipt.price_wash_5_to_7;
+                    } else if (serviceWash >= 7) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_wash_more_than_7 +'</td>';
+                        countTMPTotalMoney += receipt.price_wash_more_than_7;
+                    }
+
+                    html += '</tr>';
+                }
+
+                //drying
+                if (receipt.drying !== 0) {
+                    let serviceDrying = receipt.drying;
+
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Sấy quần / áo</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ serviceDrying +' KG</td>';
+                    if (serviceDrying >= 1 && serviceDrying < 3) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_drying_1_to_3 +'</td>';
+                        countTMPTotalMoney += receipt.price_drying_1_to_3;
+                    } else if (serviceDrying >= 3 && serviceDrying < 5) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_drying_3_to_5 +'</td>';
+                        countTMPTotalMoney += receipt.price_drying_3_to_5;
+                    } else if (serviceDrying >= 5 && serviceDrying < 7) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_drying_5_to_7 +'</td>';
+                        countTMPTotalMoney += receipt.price_drying_5_to_7;
+                    } else if (serviceDrying >= 7) {
+                        html += '<td class="col-md-3 text-center">'+ receipt.price_drying_more_than_7 +'</td>';
+                        countTMPTotalMoney += receipt.price_drying_more_than_7;
+                    }
+                    html += '</tr>';
+                }
+
+                //Wash special
+                if (receipt.wash_special !== 0) {
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Giặt và sấy quần/áo (bỏ riêng)</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.wash_special +' KG</td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.price_wash_special +'</td>';
+                    html += '</tr>';
+                    countTMPTotalMoney += receipt.price_wash_special;
+                }
+
+                //Wash blanket
+                if (receipt.wash_blanket !== 0) {
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Giặt mền</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.wash_blanket +' KG</td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.price_wash_blanket +'</td>';
+                    html += '</tr>';
+                    countTMPTotalMoney += receipt.price_wash_blanket;
+                }
+
+                //Add fabric softener
+                if (receipt.add_fabric_softener !== 0) {
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Thêm nước giặt hoặc nước xả</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.add_fabric_softener +' Nắp</td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.price_add_fbric_softener +'</td>';
+                    html += '</tr>';
+                    countTMPTotalMoney += receipt.price_add_fbric_softener;
+                }
+
+                //Small bear
+                if (receipt.small_bear !== 0) {
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Thú bông nhỏ</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.small_bear +' Con</td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.price_small_bear +'</td>';
+                    html += '</tr>';
+                    countTMPTotalMoney += receipt.price_small_bear;
+                }
+
+                //Big bear
+                if (receipt.big_bear !== 0) {
+                    html += '<tr>';
+                    html += '<td class="col-md-4"><em>Thú bông lớn</em></h4></td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.small_bear +' Con</td>';
+                    html += '<td class="col-md-3 text-center">'+ receipt.price_big_bear +'</td>';
+                    html += '</tr>';
+                    countTMPTotalMoney += receipt.price_big_bear;
+                }
+
+                html += '<tr>';
+                html += '<td class="text-right" colspan="2">';
+                html += '<p><strong>Tổng tiền dịch vụ: </strong></p>';
+                html += '<p><strong>Khuyến mãi: </strong> </p>';
+                html += '</td>';
+                html += '<td class="text-center col-md-3">';
+                html += '<p><strong>'+ countTMPTotalMoney +'</strong></p>';
+                html += '<p><strong>'+ receipt.sale_of +'%</strong></p>';
+                html += '</td>';
+                html += '</tr>';
+                html += '<tr>';
+                html += '<td class="text-right" colspan="2"><h4><strong>Tổng tiền: </strong></h4></td>';
+                html += '<td class="text-center text-success"><h4><strong>'+ receipt.total_money +'</strong></h4></td>';
+                html += '</tr>';
+                
+                $('#tableReceipt tbody').html(html);
+
+                $('.waiting-loader').addClass('d-none');
+            };
+
+            /* Notifi error API */
+            var notifyErrorServer = function() {
+                $('.waiting-loader').addClass('d-none');
+                $('#notifyText').removeClass('text-success').addClass('text-danger');
+                $('#modalNotify .modal-body').text('Chương trình bị lỗi. Vui lòng thông báo tới quản lý về vấn đề này');
+                $('#btnModalNotify').click();
+                setTimeout(function() {$('#closeModalNotify').click();}, 10000);
+            };
+        </script>
+	</body>
+</html>
